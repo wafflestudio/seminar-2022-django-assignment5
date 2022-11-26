@@ -15,7 +15,7 @@ User = get_user_model()
 
 
 class LoadDataService:
-    def __init__(self, log: typing.Callable[[str], None] = lambda: None):
+    def __init__(self, log: typing.Callable[[str], None] = lambda log: None):
         self.log = log
 
     def get_is_loaded(self):
