@@ -4,7 +4,7 @@
 
 
 ## the last test case 통과하기
-[./waffle/tests.py](./waffle/test.py)의 TODO 부분을 수정하여, test를 통과하도록 해주세요.
+[./waffle/tests.py](./waffle/tests.py)의 TODO 부분을 수정하여, test를 통과하도록 해주세요.
 
 ```shell
 python manage.py test
