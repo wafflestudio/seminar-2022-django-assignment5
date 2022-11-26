@@ -1,9 +1,6 @@
-import random
-
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
-from waffle.models import Comment, Post, Tag
 from waffle.services import LoadDataService
 
 USER_NUM = 5
