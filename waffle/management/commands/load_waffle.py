@@ -7,8 +7,8 @@ from model_mommy import mommy
 from waffle.models import Comment, Post, Tag
 
 USER_NUM = 5
-POST_NUM = 10000
-COMMENT_NUM = 10000
+POST_NUM = 2000
+COMMENT_NUM = 2000
 TAG_NUM = 500
 
 User = get_user_model()
