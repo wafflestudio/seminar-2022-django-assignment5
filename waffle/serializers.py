@@ -19,21 +19,25 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('content',)
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class UserPrefetchContextMixin:
+    @classmethod
+    def prefetch_user(cls, queryset: QuerySet):
+        return queryset.select_related("created_by")
+
+
+class TagPrefetchContextMixin:
+    @classmethod
+    def prefetch_tags(cls, queryset: QuerySet):
+        return queryset.prefetch_related('tags')
+
+
+class CommentSerializer(serializers.ModelSerializer, UserPrefetchContextMixin, TagPrefetchContextMixin):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(read_only=True, many=True)
 
     class Meta:
         model = Comment
         fields = ('id', 'created_by', 'post', 'content', 'tags')
-    
-    @classmethod
-    def prefetch_user(cls, queryset: QuerySet):
-        return queryset.select_related("created_by")
-
-    @classmethod
-    def prefetch_tags(cls, queryset: QuerySet):
-        return queryset.prefetch_related('tags')
 
     @classmethod
     def prefetch_queryset(cls, queryset: QuerySet):
@@ -42,7 +46,7 @@ class CommentSerializer(serializers.ModelSerializer):
         return queryset
 
 
-class PostSerializer(serializers.ModelSerializer):
+class PostSerializer(serializers.ModelSerializer, UserPrefetchContextMixin, TagPrefetchContextMixin):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(read_only=True, many=True)
     comment_set = CommentSerializer(read_only=True, many=True)
@@ -50,14 +54,6 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('id', 'created_by', 'tags', 'title', 'description', 'comment_set')
-        
-    @classmethod
-    def prefetch_user(cls, queryset: QuerySet):
-        return queryset.select_related("created_by")
-
-    @classmethod
-    def prefetch_tags(cls, queryset: QuerySet):
-        return queryset.prefetch_related('tags')
 
     @classmethod
     def prefetch_comments(cls, queryset: QuerySet):
