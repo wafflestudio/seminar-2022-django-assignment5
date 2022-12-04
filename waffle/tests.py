@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from django.db.models import QuerySet, Prefetch
+from django.db.models import QuerySet
 
 from rest_framework import serializers
 from waffle.models import Comment, Post
@@ -15,13 +15,13 @@ class TheLastTestCase(TestCase):
         load_data_service.load_data()
 
     def get_a_queryset(self) -> QuerySet:
-        return Comment.objects.all()  # TODO
+        return CommentSerializer.prefetch_user(Comment.objects.all())
 
     def get_b_queryset(self) -> QuerySet:
-        return Comment.objects.all()  # TODO
+        return CommentSerializer.prefetch_queryset(Comment.objects.all())
 
     def get_c_queryset(self) -> QuerySet:
-        return Post.objects.all()  # TODO
+        return PostSerializer.prefetch_queryset(Post.objects.all())
 
     def test_a(self):
         class CommentSerializer(serializers.ModelSerializer):

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Prefetch, QuerySet
 from rest_framework import serializers
 
 from waffle.models import Post, Tag, Comment
@@ -25,6 +26,20 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('id', 'created_by', 'post', 'content', 'tags')
+    
+    @classmethod
+    def prefetch_user(cls, queryset: QuerySet):
+        return queryset.select_related("created_by")
+
+    @classmethod
+    def prefetch_tags(cls, queryset: QuerySet):
+        return queryset.prefetch_related('tags')
+
+    @classmethod
+    def prefetch_queryset(cls, queryset: QuerySet):
+        queryset = cls.prefetch_user(queryset)
+        queryset = cls.prefetch_tags(queryset)
+        return queryset
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -35,3 +50,27 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('id', 'created_by', 'tags', 'title', 'description', 'comment_set')
+        
+    @classmethod
+    def prefetch_user(cls, queryset: QuerySet):
+        return queryset.select_related("created_by")
+
+    @classmethod
+    def prefetch_tags(cls, queryset: QuerySet):
+        return queryset.prefetch_related('tags')
+
+    @classmethod
+    def prefetch_comments(cls, queryset: QuerySet):
+        return queryset.prefetch_related(
+            Prefetch(
+                "comment_set",
+                queryset=CommentSerializer.prefetch_queryset(Comment.objects.all())
+            )
+        )
+
+    @classmethod
+    def prefetch_queryset(cls, queryset: QuerySet):
+        queryset = cls.prefetch_user(queryset)
+        queryset = cls.prefetch_tags(queryset)
+        queryset = cls.prefetch_comments(queryset)
+        return queryset
