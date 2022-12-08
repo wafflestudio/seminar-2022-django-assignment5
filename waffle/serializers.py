@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Prefetch
+
 from rest_framework import serializers
 
 from waffle.models import Post, Tag, Comment
@@ -22,6 +24,10 @@ class CommentSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(read_only=True, many=True)
 
+    @staticmethod
+    def prefetch_queryset(queryset):
+        return queryset.select_related('created_by').prefetch_related('tags')
+
     class Meta:
         model = Comment
         fields = ('id', 'created_by', 'post', 'content', 'tags')
@@ -31,6 +37,12 @@ class PostSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     tags = TagSerializer(read_only=True, many=True)
     comment_set = CommentSerializer(read_only=True, many=True)
+
+    @staticmethod
+    def prefetch_queryset(queryset):
+        return queryset.prefetch_related(
+            Prefetch('comment_set', queryset=CommentSerializer.prefetch_queryset(Comment.objects.all()))
+        )
 
     class Meta:
         model = Post
