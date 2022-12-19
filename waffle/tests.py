@@ -15,13 +15,30 @@ class TheLastTestCase(TestCase):
         load_data_service.load_data()
 
     def get_a_queryset(self) -> QuerySet:
+        # user 관련
         return Comment.objects.all()  # TODO
 
     def get_b_queryset(self) -> QuerySet:
-        return Comment.objects.all()  # TODO
+        # TODO
+        return Comment.objects.select_related(
+            'created_by'
+        ).prefetch_related(
+            'tags'
+        )[:10]
 
     def get_c_queryset(self) -> QuerySet:
-        return Post.objects.all()  # TODO
+        # TODO
+        return Post.objects.select_related(
+            'created_by'
+        ).prefetch_related(
+            'tags',
+            Prefetch(
+                'comment_set',
+                queryset=Comment.objects.select_related(
+                    'created_by').prefetch_related('tags'),
+                to_attr='prefetched_comment_set'
+            )
+        )[:10]
 
     def test_a(self):
         class CommentSerializer(serializers.ModelSerializer):
