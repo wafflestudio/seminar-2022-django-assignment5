@@ -15,38 +15,53 @@ class TheLastTestCase(TestCase):
         load_data_service.load_data()
 
     def get_a_queryset(self) -> QuerySet:
-        return Comment.objects.all()  # TODO
+        # TODO
+        return Comment.objects.select_related('created_by', 'post')  # TODO
 
     def get_b_queryset(self) -> QuerySet:
-        return Comment.objects.all()  # TODO
+        # TODO
+        return Comment.objects.select_related(
+            'created_by'
+        ).prefetch_related(
+            'tags'
+        )[:10]
 
     def get_c_queryset(self) -> QuerySet:
-        return Post.objects.all()  # TODO
+        # TODO
+        return (
+            Post.objects.select_related('created_by').prefetch_related('tags')
+        ).prefetch_related(
+            Prefetch(
+                'comment_set',
+                queryset=Comment.objects.all().select_related(
+                    'created_by').prefetch_related('tags')
+            )
+        )
 
     def test_a(self):
         class CommentSerializer(serializers.ModelSerializer):
-            created_by = UserSerializer(read_only=True)
+            created_by=UserSerializer(read_only=True)
 
             class Meta:
-                model = Comment
-                fields = ('id', 'created_by', 'post', 'content')
+                model=Comment
+                fields=('id', 'created_by', 'post', 'content')
 
-        comment_qs = self.get_a_queryset()[:10]
+        comment_qs=self.get_a_queryset()[:10]
 
         with self.assertNumQueries(1):
-            serializer = CommentSerializer(comment_qs, many=True)
+            serializer=CommentSerializer(comment_qs, many=True)
             serializer.data
 
     def test_b(self):
-        comment_qs = self.get_b_queryset()[:10]
+        comment_qs=self.get_b_queryset()[:10]
 
         with self.assertNumQueries(2):
-            serializer = CommentSerializer(comment_qs, many=True)
+            serializer=CommentSerializer(comment_qs, many=True)
             serializer.data
 
     def test_c(self):
-        post_qs = self.get_c_queryset()[:10]
+        post_qs=self.get_c_queryset()[:10]
 
         with self.assertNumQueries(4):
-            serializer = PostSerializer(post_qs, many=True)
+            serializer=PostSerializer(post_qs, many=True)
             serializer.data
