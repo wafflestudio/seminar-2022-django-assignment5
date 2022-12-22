@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import QuerySet, Prefetch
 from rest_framework import serializers
 
 from waffle.models import Post, Tag, Comment
