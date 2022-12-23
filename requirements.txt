@@ -9,4 +9,6 @@ pytz==2022.6
 six==1.16.0
 sqlparse==0.4.3
 toposort==1.7
+django-extensions==3.2.1
+
 # pygraphviz==1.10 # MARK: ERD 생성. m1 설치 이슈 있음 https://github.com/matsoftware/swift-code-metrics/issues/37
